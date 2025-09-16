@@ -18,6 +18,10 @@ def afficher_resultat(IMC):
     else:
         return "Obésité massive (classe III)"
 
+# Initialiser l'historique si nécessaire
+if "historique" not in st.session_state:
+    st.session_state.historique = []
+
 # Interface utilisateur Streamlit
 st.set_page_config(page_title="Calculateur d'IMC", layout="centered")
 st.title("Calculateur d'IMC")
@@ -30,5 +34,20 @@ taille = st.number_input("Entrez votre taille (m)", min_value=0.5, step=0.01)
 # Calcul et affichage
 if poids and taille:
     imc = calculer_IMC(poids, taille)
+    interpretation = afficher_resultat(imc)
     st.subheader(f"Votre IMC est : {imc}")
-    st.info(afficher_resultat(imc))
+    st.info(interpretation)
+
+    # Ajouter à l'historique
+    st.session_state.historique.append({
+        "Poids": poids,
+        "Taille": taille,
+        "IMC": imc,
+        "Interprétation": interpretation
+    })
+
+# Affichage de l'historique
+if st.session_state.historique:
+    st.markdown("### Historique des calculs")
+    for i, item in enumerate(st.session_state.historique[::-1], 1):
+        st.write(f"**{i}.** Poids: {item['Poids']} kg | Taille: {item['Taille']} m | IMC: {item['IMC']} → {item['Interprétation']}")
